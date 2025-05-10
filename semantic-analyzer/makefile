@@ -8,3 +8,5 @@ compile:
 clean:
 	rm -rf *.class syntaxtree visitor minijava-jtb.jj *~
 
+test:
+	java Main ../minijava-examples-new/minijava-extra/ArrayTest.java ../minijava-examples-new/minijava-extra/Classes.java
