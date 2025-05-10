@@ -18,4 +18,8 @@ public class FieldSymbol {
         return this.type;
     }
 
+    public void display(){
+        System.out.println("\t" + type + " " + identifier);
+    }
+
 }

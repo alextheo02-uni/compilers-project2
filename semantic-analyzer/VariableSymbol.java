@@ -28,4 +28,8 @@ public class VariableSymbol {
     public void setOrder(int o){
         this.order = o;
     }
+
+    public void display(){
+        System.out.println("\t\t" + order + " " + type + " " + identifier);
+    }
 }

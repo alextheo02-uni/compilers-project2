@@ -25,4 +25,10 @@ public class SymbolTable {
         // Insert entry into linked hashmap classes
         this.classes.put(className, cs);
     }
+
+    public void display(){
+        this.classes.forEach((key, value) -> {
+            value.display();
+        });
+    }
 }

@@ -46,14 +46,16 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
 
         ClassSymbol cs = new ClassSymbol(classname, "", true);
         this.context.currentClass = cs;
-
+        
         // Create main method symbol
         MethodSymbol ms = new MethodSymbol("main", "void");
+        this.context.currentMethod = ms;
         String argsIden = n.f11.accept(this, null);
         // Create variable symbol for String[] var
         VariableSymbol vs = new VariableSymbol(argsIden, "String[]");
-        ms.insertLocalVariable(vs);
-
+        ms.insertParameter(vs);
+        cs.insertMethod(ms);
+        
         n.f14.accept(this, null);
 
         // Insert class symbol into symbol table
@@ -160,7 +162,6 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         if (this.context.currentClass != null){
             // Method local variable
             if (this.context.currentMethod != null) {
-                
                 VariableSymbol vs = new VariableSymbol(identifier, type);
                 this.context.currentMethod.insertLocalVariable(vs);
             }
@@ -212,7 +213,10 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         this.context.currentMethod = ms;
 
         this.context.currentClass.insertMethod(ms);
+
+        this.context.isParameter = true;
         String argumentList = n.f4.present() ? n.f4.accept(this, null) : "";
+        this.context.isParameter = false;
         
         
         System.out.println("Method: " + myType + " " + myName + " (" + argumentList + ")");
@@ -277,7 +281,11 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
 
         // Insert to method context
         VariableSymbol vs = new VariableSymbol(name, type);
-        this.context.currentMethod.insertLocalVariable(vs);
+        if (this.context.isParameter){
+            this.context.currentMethod.insertParameter(vs);
+        } else {
+            this.context.currentMethod.insertLocalVariable(vs);
+        }
 
         return type + " " + name;
     }

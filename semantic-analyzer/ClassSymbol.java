@@ -46,7 +46,7 @@ public class ClassSymbol {
             throw new Exception("Field " + identifier + " already exists.");
         }
 
-        this.fields.put(className,fs);
+        this.fields.put(identifier,fs);
     }
 
     public void insertMethod(MethodSymbol ms) throws Exception {
@@ -56,6 +56,26 @@ public class ClassSymbol {
             throw new Exception("Method " + identifier + " already exists.");
         }
 
-        this.methods.put(className,ms);
+        this.methods.put(identifier,ms);
+    }
+
+    public void display(){
+        
+        System.out.println("\n------------------------");
+        
+        // Classname and parent classname
+        System.out.println((isMain?"Main ":"") + "class " + this.className + (this.parentClassName != "" ? " extends " + this.parentClassName : ""));
+        
+        // Fields
+        this.fields.forEach((key, value) -> {
+            value.display();
+        });
+        
+        // Methods
+        this.methods.forEach((key, value) -> {
+            value.display();
+        });
+        
+        System.out.println("------------------------\n");
     }
 }

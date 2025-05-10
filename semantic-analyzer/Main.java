@@ -32,6 +32,9 @@ public class Main {
                 Context context = new Context(null, null);
                 FirstPassVisitor fpv = new FirstPassVisitor(ST, context);
                 root.accept(fpv, null);
+
+                System.out.println("SYMBOL TABLE DISPLAY");
+                ST.display();
                 
                 // 2nd visitor pass, type checking
                 // SecondPassVisitor spv = new SecondPassVisitor(ST);
