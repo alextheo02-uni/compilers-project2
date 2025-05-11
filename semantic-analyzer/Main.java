@@ -5,7 +5,7 @@ import java.io.IOException;
 import syntaxtree.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if(args.length < 1){
             System.err.println("Usage: java Main [file1] [file2] ... [fileN]");
             System.exit(1);
@@ -13,7 +13,7 @@ public class Main {
 
         for (int i=0; i<args.length; i++) {
 
-            System.out.println("Performing semantic analysis for: " + args[i]);
+            System.out.println("\nPerforming semantic analysis for: " + args[i]);
             
             FileInputStream fis = null;
             try{
@@ -31,13 +31,23 @@ public class Main {
                 System.err.println("Running first visitor pass.");
                 Context context = new Context(null, null);
                 FirstPassVisitor fpv = new FirstPassVisitor(ST, context);
-                root.accept(fpv, null);
+                try {
+                    
+                    // First visitor pass
+                    root.accept(fpv, null);
+                    
+                    // 2nd visitor pass, type checking
+                    SecondPassVisitor spv = new SecondPassVisitor(ST, context);
+                    
+                    root.accept(spv, null);
+
+                } catch(Exception ex){
+                    System.err.println("ERROR: " + ex.getMessage());
+                    continue;
+                }
 
                 System.out.println("SYMBOL TABLE DISPLAY");
                 ST.display();
-                
-                // 2nd visitor pass, type checking
-                // SecondPassVisitor spv = new SecondPassVisitor(ST);
                 
                 // MyVisitor eval = new MyVisitor();
                 // root.accept(eval, null);

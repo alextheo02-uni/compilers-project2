@@ -48,7 +48,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         this.context.currentClass = cs;
         
         // Create main method symbol
-        MethodSymbol ms = new MethodSymbol("main", "void");
+        MethodSymbol ms = new MethodSymbol("main", "void", this.context.currentClass.getClassName());
         this.context.currentMethod = ms;
         String argsIden = n.f11.accept(this, null);
         // Create variable symbol for String[] var
@@ -209,7 +209,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         if (this.context.currentMethod != null) { throw new Exception("Method declaration " + myType + " " + myName + "() inside method"); }
 
         
-        MethodSymbol ms = new MethodSymbol(myName, myType);
+        MethodSymbol ms = new MethodSymbol(myName, myType, this.context.currentClass.getClassName());
         this.context.currentMethod = ms;
 
         this.context.currentClass.insertMethod(ms);

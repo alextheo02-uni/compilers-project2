@@ -6,6 +6,7 @@ public class ClassSymbol {
     private LinkedHashMap<String, FieldSymbol> fields;   // identifier -> field
     private LinkedHashMap<String, MethodSymbol> methods; // identifier -> method
     private boolean isMain; // flag for signifying if class is main
+    private int methodCounter;
 
     // Constructor
     public ClassSymbol(String className, String parentClassName, boolean isMain){
@@ -14,6 +15,7 @@ public class ClassSymbol {
         this.fields = new LinkedHashMap<>();
         this.methods = new LinkedHashMap<>();
         this.isMain = isMain;
+        this.methodCounter = 0;
     }
 
     // Getters
@@ -43,7 +45,7 @@ public class ClassSymbol {
         String identifier = fs.getIdentifier();
 
         if (this.fields.containsKey(identifier)){
-            throw new Exception("Field " + identifier + " already exists.");
+            throw new Exception("In class" + this.className + ", field " + identifier + " already exists.");
         }
 
         this.fields.put(identifier,fs);
@@ -53,9 +55,10 @@ public class ClassSymbol {
         String identifier = ms.getIdentifier();
 
         if (this.fields.containsKey(identifier)){
-            throw new Exception("Method " + identifier + " already exists.");
+            throw new Exception("In class" + this.className + ", method " + identifier + " already exists.");
         }
 
+        ms.setOrder(++methodCounter);
         this.methods.put(identifier,ms);
     }
 
