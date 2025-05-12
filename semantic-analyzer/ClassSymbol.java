@@ -39,6 +39,11 @@ public class ClassSymbol {
     public LinkedHashMap<String, FieldSymbol> getFields(){
         return this.fields;
     }
+
+    public FieldSymbol getField(String identifier){
+        return this.fields.get(identifier);
+    }
+
     
     public LinkedHashMap<String, FieldSymbol> getInheritedFields(){
         return this.inheritedFields;

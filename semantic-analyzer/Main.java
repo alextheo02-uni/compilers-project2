@@ -46,8 +46,7 @@ public class Main {
                     
                     // 2nd visitor pass, type checking
                     SecondPassVisitor spv = new SecondPassVisitor(ST, context);
-
-                    // root.accept(spv, null);
+                    root.accept(spv, null);
 
                 } catch(Exception ex){
                     System.err.println("ERROR: " + ex.getMessage());

@@ -38,6 +38,14 @@ public class MethodSymbol {
         return this.parameters;
     }
 
+    public VariableSymbol getLocalVariable(String identifier){
+        return this.localVariables.get(identifier);
+    }
+
+    public VariableSymbol getParameter(String identifier){
+        return this.parameters.get(identifier);
+    }
+
     // Returns parameters serialized as a string
     public String getStrParameterTypes(){
         PriorityQueue<VariableSymbol> params = new PriorityQueue<>(

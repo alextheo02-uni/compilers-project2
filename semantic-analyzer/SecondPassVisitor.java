@@ -28,13 +28,6 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
         });
     }
 
-    // Check if specific type is valid, or user-defined, else, throw undefined type error
-    private void typeValidityCheck(String type) throws Exception {
-        if (!this.validTypes.contains(type)){
-            throw new Exception("Undefined type: " + type + ".");
-        }
-    }
-
     /**
      * f0 -> "class"
      * f1 -> Identifier()
@@ -155,7 +148,6 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
 
         // Type
         String type = n.f0.accept(this, null);
-        typeValidityCheck(type);
 
         // Identifier
         n.f1.accept(this, null);
@@ -183,8 +175,6 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
 
         // Type
         String myType = n.f1.accept(this, null);
-        typeValidityCheck(myType);
-
         // Method declaration identifier
         String myName = n.f2.accept(this, null);
 
@@ -262,7 +252,6 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
         if (this.context.currentMethod == null) { throw new Exception("Formal parameter outside of method declaration"); }
 
         String type = n.f0.accept(this, null);
-        typeValidityCheck(type);
 
         String name = n.f1.accept(this, null);
 
@@ -289,14 +278,7 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
     }
 
     @Override
-    public String visit(Identifier n, Void argu) throws Exception {
-        String id = n.f0.toString();
-
-        // if is declaration && not extends,
-        // if (ST.getClasses().containsKey(id)){
-        //     throw new Exception("Identifier " + id + "belongs to a class name.");
-        // }
-
-        return id;
+    public String visit(Identifier n, Void argu) {
+        return n.f0.toString();
     }
 }
