@@ -24,6 +24,39 @@ public class SymbolTable {
         return null;
     }
 
+    public String getIdentifierType(String identifier, Context context){
+        // Inside class
+        if (context.currentClass != null){
+            // Inside method
+            if (context.currentMethod != null){
+                VariableSymbol vs = null;
+
+                // Parameter
+                if ((vs = context.currentMethod.getParameter(identifier)) != null){
+                    return vs.getType(); 
+                }
+                // Local Variable
+                if ((vs = context.currentMethod.getLocalVariable(identifier)) != null){
+                    return vs.getType(); 
+                }
+            }
+            // Outside method
+
+            // Field
+            FieldSymbol fs = null;
+            if ((fs = context.currentClass.getField(identifier)) != null){
+                return fs.getType();
+            }
+            
+            // Method
+            MethodSymbol ms = null;
+            if ((ms = context.currentClass.getMethod(identifier)) != null){
+                return ms.getReturnType();
+            }
+        }
+        return null;
+    }
+
     // Insert entry into classes
     public void insertClassSymbol(ClassSymbol cs) throws Exception{
         // System.out.println("Trying to insert class " + cs.getClassName() + " to ST");
