@@ -1,4 +1,6 @@
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.PriorityQueue;
 
 public class MethodSymbol {
     private String identifier;
@@ -34,6 +36,29 @@ public class MethodSymbol {
 
     public LinkedHashMap<String, VariableSymbol> getParameters(){
         return this.parameters;
+    }
+
+    // Returns parameters serialized as a string
+    public String getStrParameterTypes(){
+        PriorityQueue<VariableSymbol> params = new PriorityQueue<>(
+            Comparator.comparingInt(VariableSymbol::getOrder)
+        );
+
+        for (String identifier : this.parameters.keySet()){
+            VariableSymbol vs = this.parameters.get(identifier);
+            params.add(vs);
+        }
+
+        String res = "";
+        for (VariableSymbol vs : params){
+            res += vs.getType() + " ";
+        }
+
+        return res;
+    }
+
+    public String getParentClassName(){
+        return this.parentClassname;
     }
 
     public int getOrder(){

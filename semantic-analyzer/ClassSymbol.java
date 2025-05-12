@@ -3,19 +3,28 @@ import java.util.LinkedHashMap;
 public class ClassSymbol {
     private String className;
     private String parentClassName;
-    private LinkedHashMap<String, FieldSymbol> fields;   // identifier -> field
-    private LinkedHashMap<String, MethodSymbol> methods; // identifier -> method
+    private LinkedHashMap<String, FieldSymbol> inheritedFields;     // identifier = field
+    private LinkedHashMap<String, FieldSymbol> fields;              // identifier -> field
+    private LinkedHashMap<String, MethodSymbol> methods;            // identifier -> method
+    private LinkedHashMap<String, MethodSymbol> inheritedMethods;   // identifier -> method
     private boolean isMain; // flag for signifying if class is main
     private int methodCounter;
+    private int order;
 
     // Constructor
-    public ClassSymbol(String className, String parentClassName, boolean isMain){
+    public ClassSymbol(String className, String parentClassName, boolean isMain, int order){
         this.className = className;
         this.parentClassName = parentClassName;
+
         this.fields = new LinkedHashMap<>();
+        this.inheritedFields = new LinkedHashMap<>();
+
         this.methods = new LinkedHashMap<>();
+        this.inheritedMethods = new LinkedHashMap<>();
+
         this.isMain = isMain;
         this.methodCounter = 0;
+        this.order = order;
     }
 
     // Getters
@@ -30,9 +39,24 @@ public class ClassSymbol {
     public LinkedHashMap<String, FieldSymbol> getFields(){
         return this.fields;
     }
+    
+    public LinkedHashMap<String, FieldSymbol> getInheritedFields(){
+        return this.inheritedFields;
+    }
 
     public LinkedHashMap<String, MethodSymbol> getMethods(){
         return this.methods;
+    }
+
+    public LinkedHashMap<String, MethodSymbol> getInheritedMethods(){
+        return this.inheritedMethods;
+    }
+
+    public MethodSymbol getMethod(String identifier){
+        if (this.methods.containsKey(identifier)){
+            return this.methods.get(identifier);
+        }
+        return null;
     }
 
     public boolean isMain(){
@@ -41,7 +65,7 @@ public class ClassSymbol {
 
     // Insert methods
 
-    public void insertField(FieldSymbol fs) throws Exception{
+    public void insertField(FieldSymbol fs) throws Exception {
         String identifier = fs.getIdentifier();
 
         if (this.fields.containsKey(identifier)){
@@ -62,19 +86,56 @@ public class ClassSymbol {
         this.methods.put(identifier,ms);
     }
 
+    // Inheritance method
+    public void inherit(ClassSymbol parent){
+
+        // Inherit parent's fields
+        LinkedHashMap<String, FieldSymbol> parentFields = parent.getFields();
+        if (!parentFields.isEmpty()){
+            parentFields.forEach((identifier, fieldSymbol) -> {
+                this.inheritedFields.put(fieldSymbol.getIdentifier(), fieldSymbol);
+            });
+        }
+
+        // Inherit parent's methods
+        LinkedHashMap<String, MethodSymbol> parentMethods = parent.getMethods();
+        if (!parentMethods.isEmpty()){
+            parentMethods.forEach((identifier, methodSymbol) -> {
+                this.inheritedMethods.put(methodSymbol.getIdentifier(), methodSymbol);
+            });
+        }
+    }
+
     public void display(){
         
         System.out.println("\n------------------------");
         
         // Classname and parent classname
-        System.out.println((isMain?"Main ":"") + "class " + this.className + (this.parentClassName != "" ? " extends " + this.parentClassName : ""));
+        System.out.println(this.order + " " + (isMain?"Main ":"") + "class " + this.className + (this.parentClassName != "" ? " extends " + this.parentClassName : ""));
+        
+        // Inherited Fields
+        System.out.println("Inherited fields:");
+        this.inheritedFields.forEach((key, value) -> {
+            value.display();
+        });
+        System.out.println();
         
         // Fields
+        System.out.println("Fields:");
         this.fields.forEach((key, value) -> {
             value.display();
         });
+        System.out.println();
+        
+        // Inherited Methods
+        System.out.println("Inherited methods:");
+        this.inheritedMethods.forEach((key, value) -> {
+            value.display();
+        });
+        System.out.println();
         
         // Methods
+        System.out.println("Methods:");
         this.methods.forEach((key, value) -> {
             value.display();
         });

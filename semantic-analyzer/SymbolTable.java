@@ -13,6 +13,13 @@ public class SymbolTable {
         return this.classes;
     }
 
+    public ClassSymbol getClassSymbol(String classname){
+        if (this.classes.containsKey(classname)){
+            return this.classes.get(classname);
+        }
+        return null;
+    }
+
     // Insert entry into classes
     public void insertClassSymbol(ClassSymbol cs) throws Exception{
         // System.out.println("Trying to insert class " + cs.getClassName() + " to ST");
@@ -24,6 +31,61 @@ public class SymbolTable {
 
         // Insert entry into linked hashmap classes
         this.classes.put(className, cs);
+    }
+
+    public void declarationCheck() throws Exception {
+        
+        // For all classes
+        for (String classname : this.classes.keySet()){
+            ClassSymbol cs = this.classes.get(classname);
+
+            // Field namecheck
+            for (String field_identifier : cs.getFields().keySet()){
+                if (this.classes.containsKey(field_identifier)) {
+                    throw new Exception("Field identifier " + field_identifier + " conflicts with another class name.");
+                }
+            }
+
+            // Method namecheck
+            for (String method_identifier : cs.getMethods().keySet()){
+                if (this.classes.containsKey(method_identifier)) {
+                    throw new Exception("Method identifier " + method_identifier + " conflicts with another class name.");
+                }
+                MethodSymbol ms = cs.getMethod(method_identifier);
+                
+                // Local variable namecheck
+                for (String var_identifier : ms.getLocalVariables().keySet()){
+                    if (this.classes.containsKey(var_identifier)) {
+                        throw new Exception("Local variable " + var_identifier + " in method " + ms.getIdentifier() + " in class " + cs.getClassName() + " conflicts with another class name.");
+                    }
+                }
+
+                // Parameter namecheck
+                for (String parameter_identifier : ms.getParameters().keySet()){
+                    if (this.classes.containsKey(parameter_identifier)) {
+                        throw new Exception("Parameter " + parameter_identifier + " in method " + method_identifier + " in class " + cs.getClassName() + " conflicts with another class name.");
+                    }
+                }
+
+                // If method_identifier also exists in parent class, check that parameters and return types match
+                if (cs.getInheritedMethods() != null && cs.getInheritedMethods().containsKey(method_identifier)) {
+                    MethodSymbol ims = cs.getInheritedMethods().get(method_identifier);
+
+                    // Return type check
+                    if (ims.getReturnType() != ms.getReturnType()){
+                        throw new Exception("Type mismatch between " + classname + "." + method_identifier + " and " + cs.getParentClassName() + "." + method_identifier);
+                    }
+
+                    // Parameters check
+                    if (!ims.getStrParameterTypes().equals(ms.getStrParameterTypes())){
+                        throw new Exception("Type mismatch between " + classname + "." + method_identifier + " and " + cs.getParentClassName() + "." + method_identifier);
+                    }
+
+                }
+            };
+
+        }
+
     }
 
     public void display(){

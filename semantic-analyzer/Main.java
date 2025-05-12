@@ -36,18 +36,24 @@ public class Main {
                     // First visitor pass
                     root.accept(fpv, null);
                     
+                    System.out.println("SYMBOL TABLE DISPLAY");
+                    ST.display();
+
+                    // After gathering all the info about classes,
+                    // Parse the Symbol Table once for name checking
+                    
+                    ST.declarationCheck();
+                    
                     // 2nd visitor pass, type checking
                     SecondPassVisitor spv = new SecondPassVisitor(ST, context);
-                    
-                    root.accept(spv, null);
+
+                    // root.accept(spv, null);
 
                 } catch(Exception ex){
                     System.err.println("ERROR: " + ex.getMessage());
                     continue;
                 }
 
-                System.out.println("SYMBOL TABLE DISPLAY");
-                ST.display();
                 
                 // MyVisitor eval = new MyVisitor();
                 // root.accept(eval, null);

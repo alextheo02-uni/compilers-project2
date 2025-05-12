@@ -11,11 +11,13 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
     // Fields
     private SymbolTable ST;
     private Context context;
-
+    private int classOrder;
+    
     // Constructor
     public FirstPassVisitor(SymbolTable ST, Context context){
         this.ST = ST;
         this.context = context;
+        this.classOrder = 0;
     }
 
     /**
@@ -44,7 +46,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         String classname = n.f1.accept(this, null);
         System.out.println("Main class: " + classname);
 
-        ClassSymbol cs = new ClassSymbol(classname, "", true);
+        ClassSymbol cs = new ClassSymbol(classname, "", true, ++classOrder);
         this.context.currentClass = cs;
         
         // Create main method symbol
@@ -56,6 +58,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         ms.insertParameter(vs);
         cs.insertMethod(ms);
         
+        // Local variable declaration for public static void main method
         n.f14.accept(this, null);
 
         // Insert class symbol into symbol table
@@ -87,13 +90,12 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         String classname = n.f1.accept(this, null);
         System.out.println("Class: " + classname);
 
-        ClassSymbol cs = new ClassSymbol(classname, "", false);
+        ClassSymbol cs = new ClassSymbol(classname, "", false, ++classOrder);
         this.context.currentClass = cs;
         
         // Insert class symbol into symbol table
         ST.insertClassSymbol(cs);
 
-        n.f2.accept(this, null);
         System.out.println("Fields: ");
         n.f3.accept(this, null);
         System.out.println("Methods: ");
@@ -126,19 +128,27 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         System.out.println("Class: " + classname);
 
         n.f2.accept(this, null);
+
         String parentClassName = n.f3.accept(this, null);
 
-        ClassSymbol cs = new ClassSymbol(classname, parentClassName, false);
+        // check if parent className exists in symbol table (defined before extends)
+        if (!this.ST.getClasses().keySet().contains(parentClassName)){
+            throw new Exception("Parent class " + parentClassName + " must be defined before using keyword \"extends\". ");
+        }
+
+        ClassSymbol cs = new ClassSymbol(classname, parentClassName, false, ++classOrder);
         this.context.currentClass = cs;
+
+        cs.inherit(ST.getClassSymbol(parentClassName));
+        
+
         // Insert class symbol into symbol table
         ST.insertClassSymbol(cs);
 
-        n.f4.accept(this, null);
         System.out.println("Fields: ");
         n.f5.accept(this, null);
         System.out.println("Methods: ");
         n.f6.accept(this, null);
-        n.f7.accept(this, null);
 
         System.out.println();
 
@@ -178,7 +188,6 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         }
 
         System.out.println(identifier + " " + type);
-        super.visit(n, null);
         
         return _ret;
     }
