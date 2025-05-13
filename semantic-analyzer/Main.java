@@ -13,7 +13,7 @@ public class Main {
 
         for (int i=0; i<args.length; i++) {
 
-            System.out.println("\nPerforming semantic analysis for: " + args[i]);
+            // System.out.println("\nPerforming semantic analysis for: " + args[i]);
             
             FileInputStream fis = null;
             try{
@@ -22,7 +22,7 @@ public class Main {
                 
                 Goal root = parser.Goal();
                 
-                System.err.println("Program parsed successfully.");
+                // System.err.println("Program parsed successfully.");
                 
                 // Create SymbolTable object
                 SymbolTable ST = new SymbolTable();
@@ -32,7 +32,7 @@ public class Main {
                 FirstPassVisitor fpv = new FirstPassVisitor(ST, context);
                 try {
                     
-                    System.err.println("Running first visitor pass.");
+                    // System.err.println("Running first visitor pass.");
                     // First visitor pass
                     root.accept(fpv, null);
                     
@@ -46,7 +46,7 @@ public class Main {
                     
                     // 2nd visitor pass, type checking
                     SecondPassVisitor spv = new SecondPassVisitor(ST, context);
-                    System.err.println("Running second visitor pass.");
+                    // System.err.println("Running second visitor pass.");
                     root.accept(spv, null);
 
                 } catch(Exception ex){

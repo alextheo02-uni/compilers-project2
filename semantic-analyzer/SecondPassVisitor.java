@@ -32,12 +32,25 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
     }
 
     private void derivationCheck(String A, String B) throws Exception {
-        if (!A.equals(B)){
-            ClassSymbol cs = this.ST.getClassSymbol(B);
-            if (!cs.getParentClassName().equals(A)){
-                throw new Exception("Invalid assigment of type " + B + " to " + A);
-            }
+        
+        // Same type
+        if (A.equals(B)){
+            return;
         }
+        
+        if (!this.ST.getClasses().containsKey(B)){
+            throw new Exception("Invalid assignment of type " + B + " to " + A);
+        }
+        
+        ClassSymbol cs = this.ST.getClassSymbol(B);
+        String parentClassName = "";
+        while (!(parentClassName = cs.getParentClassName()).equals("")){
+            if (parentClassName.equals(A)){
+                return;
+            }
+            cs = cs.getParentClassSymbol();
+        }
+        throw new Exception("Invalid assignment of type " + B + " to " + A);
     }
 
     private void methodArgCheck(String paramList, String argList) throws Exception {
@@ -279,6 +292,9 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
     @Override
     public String visit(ArrayLookup n, Void argu) throws Exception {
         String pr1Type = n.f0.accept(this, null);
+        if (!pr1Type.equals("int[]") && !pr1Type.equals("boolean[]")){
+            throw new Exception("Can not use lookup operation on non int[] or boolean[] type");
+        }
         String arrayAccessType = n.f2.accept(this, null);
 
         if (!arrayAccessType.equals("int")){
@@ -410,7 +426,6 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(PrimaryExpression n, Void argu) throws Exception {
-        // System.out.println("PRIMARY EXPR: " + n.f0.choice.getClass().getName().toString());
 
         if (n.f0.choice.getClass().getName().toString().equals("syntaxtree.Identifier")){
 
@@ -424,19 +439,15 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
                     throw new Exception("Can not use access operator (.) on not instantiated object.");
                 }
                 
-                // System.out.println(identifierType + " " + identifier);
                 
                 if (!this.ST.getClasses().containsKey(identifierType)){
                     throw new Exception("Can not use access operator (.) on non basic minijava types except for int[] and boolean[] with .length");
                 }
             }
-
-            // System.out.println("PRIMARY EXPR RET: " + identifierType);
             return identifierType;
         }
         
         String res = n.f0.accept(this, null);
-        // System.out.println("PRIMARY EXPR RET: " + res);
         return res;
 
     }
@@ -522,7 +533,7 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(NotExpression n, Void argu) throws Exception {
-        String clauseType = n.f0.accept(this, null);
+        String clauseType = n.f1.accept(this, null);
         if (!clauseType.equals("boolean")) {
             throw new Exception("Not (!) operator expected value of type boolean, got " + clauseType);
         }

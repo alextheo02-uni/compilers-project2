@@ -3,6 +3,7 @@ import java.util.LinkedHashMap;
 public class ClassSymbol {
     private String className;
     private String parentClassName;
+    private ClassSymbol parentClassSymbol;
     private LinkedHashMap<String, FieldSymbol> inheritedFields;     // identifier = field
     private LinkedHashMap<String, FieldSymbol> fields;              // identifier -> field
     private LinkedHashMap<String, MethodSymbol> methods;            // identifier -> method
@@ -12,9 +13,10 @@ public class ClassSymbol {
     private int order;
 
     // Constructor
-    public ClassSymbol(String className, String parentClassName, boolean isMain, int order){
+    public ClassSymbol(String className, String parentClassName, ClassSymbol parentClassSymbol, boolean isMain, int order){
         this.className = className;
         this.parentClassName = parentClassName;
+        this.parentClassSymbol = parentClassSymbol;
 
         this.fields = new LinkedHashMap<>();
         this.inheritedFields = new LinkedHashMap<>();
@@ -34,6 +36,10 @@ public class ClassSymbol {
 
     public String getParentClassName(){
         return this.parentClassName;
+    }
+
+    public ClassSymbol getParentClassSymbol(){
+        return this.parentClassSymbol;
     }
 
     public LinkedHashMap<String, FieldSymbol> getFields(){
@@ -61,6 +67,13 @@ public class ClassSymbol {
         if (this.methods.containsKey(identifier)){
             return this.methods.get(identifier);
         }
+        else if (this.inheritedMethods.containsKey(identifier)) {
+            return this.inheritedMethods.get(identifier);
+        }
+        else if (this.parentClassSymbol != null) {
+            MethodSymbol ms = parentClassSymbol.getMethod(identifier);
+            return ms;
+        }
         return null;
     }
 
@@ -83,7 +96,7 @@ public class ClassSymbol {
     public void insertMethod(MethodSymbol ms) throws Exception {
         String identifier = ms.getIdentifier();
 
-        if (this.fields.containsKey(identifier)){
+        if (this.methods.containsKey(identifier)){
             throw new Exception("In class" + this.className + ", method " + identifier + " already exists.");
         }
 

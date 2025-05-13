@@ -9,6 +9,6 @@ clean:
 	rm -rf *.class syntaxtree visitor minijava-jtb.jj *~
 
 test:
-	java Main ../minijava-examples-new/minijava-extra/Classes.java
-
-# ./minijava-examples-new/minijava-extra/ArrayTest.java
+	bash minijava-examples-new-script.sh
+	bash minijava-extra-script.sh
+	bash minijava-error-extra-script.sh

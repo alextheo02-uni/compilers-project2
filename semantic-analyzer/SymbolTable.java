@@ -49,12 +49,14 @@ public class SymbolTable {
                 }
 
                 // Derived class field
-                if (!context.currentClass.getParentClassName().equals("")){
-                    ClassSymbol parent_cs = this.getClassSymbol(context.currentClass.getParentClassName());
+                ClassSymbol cs = context.currentClass;
+                while (cs.getParentClassSymbol() != null){
+                    ClassSymbol parent_cs = cs.getParentClassSymbol();
                     FieldSymbol fs = null;
                     if ((fs = parent_cs.getField(identifier)) != null){
                         return fs.getType();
                     }
+                    cs = parent_cs;
                 }
 
             }
@@ -72,8 +74,8 @@ public class SymbolTable {
                 return ms.getReturnType();
             }
         }
-        System.out.println("GET ID TYPE " + identifier);
-        return null;
+        // System.out.println("GET ID TYPE " + identifier); // TreeVisitor-error
+        return "undefined";
     }
 
     // Insert entry into classes

@@ -46,7 +46,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         String classname = n.f1.accept(this, null);
         // System.out.println("Main class: " + classname);
 
-        ClassSymbol cs = new ClassSymbol(classname, "", true, ++classOrder);
+        ClassSymbol cs = new ClassSymbol(classname, "", null, true, ++classOrder);
         this.context.currentClass = cs;
         
         // Create main method symbol
@@ -90,7 +90,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         String classname = n.f1.accept(this, null);
         // System.out.println("Class: " + classname);
 
-        ClassSymbol cs = new ClassSymbol(classname, "", false, ++classOrder);
+        ClassSymbol cs = new ClassSymbol(classname, "", null, false, ++classOrder);
         this.context.currentClass = cs;
         
         // Insert class symbol into symbol table
@@ -136,7 +136,8 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
             throw new Exception("Parent class " + parentClassName + " must be defined before using keyword \"extends\". ");
         }
 
-        ClassSymbol cs = new ClassSymbol(classname, parentClassName, false, ++classOrder);
+        ClassSymbol parentClassSymbol = this.ST.getClassSymbol(parentClassName);
+        ClassSymbol cs = new ClassSymbol(classname, parentClassName, parentClassSymbol, false, ++classOrder);
         this.context.currentClass = cs;
 
         cs.inherit(ST.getClassSymbol(parentClassName));
