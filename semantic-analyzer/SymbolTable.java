@@ -27,6 +27,14 @@ public class SymbolTable {
     public String getIdentifierType(String identifier, Context context){
         // Inside class
         if (context.currentClass != null){
+
+            // Classname
+            for (ClassSymbol cs : this.classes.values()){
+                if (cs.getClassName().equals(identifier)){
+                    return identifier;
+                }
+            }
+
             // Inside method
             if (context.currentMethod != null){
                 VariableSymbol vs = null;
@@ -39,6 +47,16 @@ public class SymbolTable {
                 if ((vs = context.currentMethod.getLocalVariable(identifier)) != null){
                     return vs.getType(); 
                 }
+
+                // Derived class field
+                if (!context.currentClass.getParentClassName().equals("")){
+                    ClassSymbol parent_cs = this.getClassSymbol(context.currentClass.getParentClassName());
+                    FieldSymbol fs = null;
+                    if ((fs = parent_cs.getField(identifier)) != null){
+                        return fs.getType();
+                    }
+                }
+
             }
             // Outside method
 
@@ -54,6 +72,7 @@ public class SymbolTable {
                 return ms.getReturnType();
             }
         }
+        System.out.println("GET ID TYPE " + identifier);
         return null;
     }
 

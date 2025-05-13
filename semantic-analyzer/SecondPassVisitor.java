@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -14,6 +15,7 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
     private SymbolTable ST;
     private Context context;
     private HashSet<String> validTypes;
+    private boolean messageSendFlag;
 
 
     // Constructor
@@ -26,6 +28,33 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
         ST.getClasses().forEach((key, value) -> {
             if (!value.isMain()) { this.validTypes.add(key); }
         });
+        this.messageSendFlag = false;
+    }
+
+    private void derivationCheck(String A, String B) throws Exception {
+        if (!A.equals(B)){
+            ClassSymbol cs = this.ST.getClassSymbol(B);
+            if (!cs.getParentClassName().equals(A)){
+                throw new Exception("Invalid assigment of type " + B + " to " + A);
+            }
+        }
+    }
+
+    private void methodArgCheck(String paramList, String argList) throws Exception {
+
+        // Split both strings to lists
+        ArrayList<String> paramTypesList = new ArrayList<String>(Arrays.asList(paramList.split(" ")));
+        ArrayList<String> argTypesList = new ArrayList<String>(Arrays.asList(argList.split(" ")));
+
+        // Check lengths
+        if (paramTypesList.size() == argTypesList.size()){
+            for (int i=0; i<paramTypesList.size(); i++){
+                derivationCheck(paramTypesList.get(i), argTypesList.get(i));
+            }
+        }
+        else{
+            throw new Exception("Function call arguments do not match expected parameter types. Expected: " + paramList + " but got: " + argList);
+        }
     }
 
     /**
@@ -46,9 +75,8 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
         // Accept expression, which will return resolved type, if expression type != identifier.type -> error
         String expressionType = n.f2.accept(this, null);
 
-        if (!identifierType.equals(expressionType)){
-            throw new Exception("Invalid assigment of type " + expressionType + " to " + identifierType);
-        }
+        // Check if expression type extends identifier type
+        derivationCheck(identifierType, expressionType);
 
         return null;
     }
@@ -148,9 +176,7 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(Expression n, Void argu) throws Exception {
-        System.out.println("EXPRESSION ");
-        System.out.println(n.f0.accept(this, null));
-        return "int";
+        return n.f0.accept(this, null);
     }
     
     /**
@@ -161,7 +187,14 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(AndExpression n, Void argu) throws Exception {
+        String leftType = n.f0.accept(this, null);
+        String rightType = n.f2.accept(this, null);
 
+        if (!leftType.equals("boolean") || !rightType.equals("boolean")){
+            throw new Exception("Logical AND expects boolean values on both sides, got: " + leftType + " and " + rightType);
+        }
+
+        return "boolean";
     }
 
     /**
@@ -172,11 +205,11 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(CompareExpression n, Void argu) throws Exception {
-        String pr1Type = n.f0.accept(this, null);
-        String pr2Type = n.f2.accept(this, null);
+        String leftType = n.f0.accept(this, null);
+        String rightType = n.f2.accept(this, null);
 
-        if (!pr1Type.equals("int") || !pr2Type.equals("int")){
-            throw new Exception("Less than comparison expects both values to be of type int, instead got: " + pr1Type + ", " + pr2Type);
+        if (!leftType.equals("int") || !rightType.equals("int")){
+            throw new Exception("Less than comparison expects both values to be of type int, instead got: " + leftType + ", " + rightType);
         }
 
         return "boolean";
@@ -190,11 +223,11 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(PlusExpression n, Void argu) throws Exception {
-        String pr1Type = n.f0.accept(this, null);
-        String pr2Type = n.f2.accept(this, null);
+        String leftType = n.f0.accept(this, null);
+        String rightType = n.f2.accept(this, null);
 
-        if (!pr1Type.equals("int") || !pr2Type.equals("int")){
-            throw new Exception("Addition expects both values to be of type int, instead got: " + pr1Type + ", " + pr2Type);
+        if (!leftType.equals("int") || !rightType.equals("int")){
+            throw new Exception("Addition expects both values to be of type int, instead got: " + leftType + ", " + rightType);
         }
         
         return "int";
@@ -208,11 +241,11 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(MinusExpression n, Void argu) throws Exception {
-        String pr1Type = n.f0.accept(this, null);
-        String pr2Type = n.f2.accept(this, null);
+        String leftType = n.f0.accept(this, null);
+        String rightType = n.f2.accept(this, null);
 
-        if (!pr1Type.equals("int") || !pr2Type.equals("int")){
-            throw new Exception("Subtraction expects both values to be of type int, instead got: " + pr1Type + ", " + pr2Type);
+        if (!leftType.equals("int") || !rightType.equals("int")){
+            throw new Exception("Subtraction expects both values to be of type int, instead got: " + leftType + ", " + rightType);
         }
         
         return "int";
@@ -226,11 +259,11 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(TimesExpression n, Void argu) throws Exception {
-        String pr1Type = n.f0.accept(this, null);
-        String pr2Type = n.f2.accept(this, null);
+        String leftType = n.f0.accept(this, null);
+        String rightType = n.f2.accept(this, null);
 
-        if (!pr1Type.equals("int") || !pr2Type.equals("int")){
-            throw new Exception("Multiplication expects both values to be of type int, instead got: " + pr1Type + ", " + pr2Type);
+        if (!leftType.equals("int") || !rightType.equals("int")){
+            throw new Exception("Multiplication expects both values to be of type int, instead got: " + leftType + ", " + rightType);
         }
 
         return "int";
@@ -246,13 +279,13 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
     @Override
     public String visit(ArrayLookup n, Void argu) throws Exception {
         String pr1Type = n.f0.accept(this, null);
-        String pr2Type = n.f2.accept(this, null);
+        String arrayAccessType = n.f2.accept(this, null);
 
-        if (!pr2Type.equals("int")){
-            throw new Exception("Array index must be of type int, not " + pr2Type);
+        if (!arrayAccessType.equals("int")){
+            throw new Exception("Array index must be of type int, not " + arrayAccessType);
         }
 
-        return pr1Type;
+        return pr1Type.substring(0, pr1Type.length()-2);
     }
 
 
@@ -283,7 +316,42 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(MessageSend n, Void argu) throws Exception {
+        this.messageSendFlag = true;
+        String classname = n.f0.accept(this, null);
+        this.messageSendFlag = false;
+        
+        String methodIdentifier = n.f2.accept(this, null);
+        
+        String expressionListTypes = n.f4.present() ? n.f4.accept(this, null) : "";
 
+        ClassSymbol cs = null;
+        if ((cs = ST.getClassSymbol(classname)) != null){
+            MethodSymbol ms = null;
+            if ((ms = cs.getMethod(methodIdentifier)) != null){
+                // Method found, check expression list with parameter list
+                String parameterListTypes = ms.getStrParameterTypes();
+
+                if (!parameterListTypes.equals(expressionListTypes)) {
+                    // Check each argument individually, for derived classes
+                    methodArgCheck(parameterListTypes, expressionListTypes);
+                }
+
+                return ms.getReturnType();
+            }
+            throw new Exception("Object of type " + classname + " does not have method: " + methodIdentifier);
+        }
+        throw new Exception("Classname " + classname + " not found");
+
+    }
+
+    /**
+     * Grammar production:
+     * f0 -> NotExpression()
+     *       | PrimaryExpression()
+     */
+    @Override
+    public String visit(Clause n, Void argu) throws Exception {
+        return n.f0.accept(this, null);
     }
 
     /**
@@ -293,7 +361,16 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(ExpressionList n, Void argu) throws Exception {
+        String ret = n.f0.accept(this, null) + " ";
 
+        if (n.f1 != null) {
+            String r = n.f1.accept(this, null);
+            if (!r.isEmpty()){
+                ret += r;
+            }
+        }
+
+        return ret;
     }
 
     /**
@@ -302,7 +379,12 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(ExpressionTail n, Void argu) throws Exception {
+        String ret = "";
+        for ( Node node: n.f0.nodes) {
+            ret += node.accept(this, null) + " ";
+        }
 
+        return ret;
     }
 
     /**
@@ -312,19 +394,7 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(ExpressionTerm n, Void argu) throws Exception {
-
-    }
-
-
-
-    /**
-     * Grammar production:
-     * f0 -> NotExpression()
-     *       | PrimaryExpression()
-     */
-    @Override
-    public String visit(Clause n, Void argu) throws Exception {
-        
+        return n.f1.accept(this, null);
     }
 
     /**
@@ -340,14 +410,48 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
      */
     @Override
     public String visit(PrimaryExpression n, Void argu) throws Exception {
+        // System.out.println("PRIMARY EXPR: " + n.f0.choice.getClass().getName().toString());
 
-        // Identifier exception
-        if (n.getClass().getName().equals("Identifier")){
+        if (n.f0.choice.getClass().getName().toString().equals("syntaxtree.Identifier")){
+
             String identifier = n.f0.accept(this, null);
-            return ST.getIdentifierType(identifier, context);
+            String identifierType = this.ST.getIdentifierType(identifier, context);
+
+            // Only perform the following checks if coming from messageSend
+            if (this.messageSendFlag){
+
+                if (this.ST.getClasses().containsKey(identifier)){
+                    throw new Exception("Can not use access operator (.) on not instantiated object.");
+                }
+                
+                // System.out.println(identifierType + " " + identifier);
+                
+                if (!this.ST.getClasses().containsKey(identifierType)){
+                    throw new Exception("Can not use access operator (.) on non basic minijava types except for int[] and boolean[] with .length");
+                }
+            }
+
+            // System.out.println("PRIMARY EXPR RET: " + identifierType);
+            return identifierType;
+        }
+        
+        String res = n.f0.accept(this, null);
+        // System.out.println("PRIMARY EXPR RET: " + res);
+        return res;
+
+    }
+
+    /**
+     * Grammar production:
+     * f0 -> "this"
+     */
+    @Override public String visit(ThisExpression n, Void argu) throws Exception {
+        if (this.context.currentClass == null) {
+            throw new Exception("\"this\" operator used outside of class scope.");
         }
 
-        return n.f0.accept(this, null);
+        // Return classname
+        return this.context.currentClass.getClassName();
     }
 
 
@@ -400,12 +504,29 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
 
     /**
      * Grammar production:
+     * f0 -> "("
+     * f1 -> Expression()
+     * f2 -> ")"
+     */
+    @Override
+    public String visit(BracketExpression n, Void argu) throws Exception {
+        return n.f1.accept(this, null);
+    }
+
+
+
+    /**
+     * Grammar production:
      * f0 -> "!"
      * f1 -> Clause()
      */
     @Override
     public String visit(NotExpression n, Void argu) throws Exception {
-
+        String clauseType = n.f0.accept(this, null);
+        if (!clauseType.equals("boolean")) {
+            throw new Exception("Not (!) operator expected value of type boolean, got " + clauseType);
+        }
+        return "boolean";
     }
 
     /**
@@ -606,7 +727,11 @@ class SecondPassVisitor extends GJDepthFirst<String, Void>{
         n.f8.accept(this, null);
 
         // Return expression (must match return type)
-        n.f10.accept(this, null);
+        String returnType = n.f10.accept(this, null);
+
+        if (!returnType.equals(ms.getReturnType())){
+            throw new Exception("Method " + ms.getIdentifier() + " in class " + this.context.currentClass.getClassName() + " must return " + ms.getReturnType() + ", not " + returnType);
+        }
 
         // Clear currentMethod context
         this.context.currentMethod = null;

@@ -44,7 +44,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
     public String visit(MainClass n, Void argu) throws Exception {
 
         String classname = n.f1.accept(this, null);
-        System.out.println("Main class: " + classname);
+        // System.out.println("Main class: " + classname);
 
         ClassSymbol cs = new ClassSymbol(classname, "", true, ++classOrder);
         this.context.currentClass = cs;
@@ -64,7 +64,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         // Insert class symbol into symbol table
         ST.insertClassSymbol(cs);
 
-        System.out.println();
+        // System.out.println();
         
         // Clear currentMethod context
         this.context.currentMethod = null;
@@ -88,7 +88,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         n.f0.accept(this, null);
         
         String classname = n.f1.accept(this, null);
-        System.out.println("Class: " + classname);
+        // System.out.println("Class: " + classname);
 
         ClassSymbol cs = new ClassSymbol(classname, "", false, ++classOrder);
         this.context.currentClass = cs;
@@ -96,13 +96,13 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         // Insert class symbol into symbol table
         ST.insertClassSymbol(cs);
 
-        System.out.println("Fields: ");
+        // System.out.println("Fields: ");
         n.f3.accept(this, null);
-        System.out.println("Methods: ");
+        // System.out.println("Methods: ");
         n.f4.accept(this, null);
         n.f5.accept(this, null);
 
-        System.out.println();
+        // System.out.println();
 
         // Clear currentClass context
         this.context.currentClass = null;
@@ -125,7 +125,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         n.f0.accept(this, null);
 
         String classname = n.f1.accept(this, null);
-        System.out.println("Class: " + classname);
+        // System.out.println("Class: " + classname);
 
         n.f2.accept(this, null);
 
@@ -145,12 +145,12 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         // Insert class symbol into symbol table
         ST.insertClassSymbol(cs);
 
-        System.out.println("Fields: ");
+        // System.out.println("Fields: ");
         n.f5.accept(this, null);
-        System.out.println("Methods: ");
+        // System.out.println("Methods: ");
         n.f6.accept(this, null);
 
-        System.out.println();
+        // System.out.println();
 
         // Clear currentClass context
         this.context.currentClass = null;
@@ -187,7 +187,7 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
             throw new Exception("Stray variable detected: " + type + " " + identifier);
         }
 
-        System.out.println(identifier + " " + type);
+        // System.out.println(identifier + " " + type);
         
         return _ret;
     }
@@ -228,8 +228,8 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         this.context.isParameter = false;
         
         
-        System.out.println("Method: " + myType + " " + myName + " (" + argumentList + ")");
-        System.out.println("Local vars:");
+        // System.out.println("Method: " + myType + " " + myName + " (" + argumentList + ")");
+        // System.out.println("Local vars:");
         
         n.f7.accept(this, null);
 

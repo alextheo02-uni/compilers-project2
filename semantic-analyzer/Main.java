@@ -28,17 +28,17 @@ public class Main {
                 SymbolTable ST = new SymbolTable();
                 
                 // 1st visitor pass, create the symbol table
-                System.err.println("Running first visitor pass.");
                 Context context = new Context(null, null);
                 FirstPassVisitor fpv = new FirstPassVisitor(ST, context);
                 try {
                     
+                    System.err.println("Running first visitor pass.");
                     // First visitor pass
                     root.accept(fpv, null);
                     
-                    System.out.println("SYMBOL TABLE DISPLAY");
-                    ST.display();
-
+                    // System.out.println("SYMBOL TABLE DISPLAY");
+                    // ST.display();
+                    
                     // After gathering all the info about classes,
                     // Parse the Symbol Table once for name checking
                     
@@ -46,6 +46,7 @@ public class Main {
                     
                     // 2nd visitor pass, type checking
                     SecondPassVisitor spv = new SecondPassVisitor(ST, context);
+                    System.err.println("Running second visitor pass.");
                     root.accept(spv, null);
 
                 } catch(Exception ex){
