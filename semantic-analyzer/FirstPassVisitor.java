@@ -300,15 +300,25 @@ class FirstPassVisitor extends GJDepthFirst<String, Void>{
         return type + " " + name;
     }
 
+    /**
+     * Grammar production:
+     * f0 -> BooleanArrayType()
+     *       | IntegerArrayType()
+     */
     @Override
-    public String visit(ArrayType n, Void argu) {
-        return "int[]";
+    public String visit(ArrayType n, Void argu) throws Exception {
+        return n.f0.accept(this, null);
     }
 
     // Added boolean array type support
     @Override
     public String visit(BooleanArrayType n, Void argu) {
         return "boolean[]";
+    }
+
+    @Override
+    public String visit(IntegerArrayType n, Void argu) {
+        return "int[]";
     }
 
     public String visit(BooleanType n, Void argu) {
