@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class SymbolTable {
     private LinkedHashMap<String, ClassSymbol> classes;
@@ -175,5 +176,78 @@ public class SymbolTable {
         this.classes.forEach((key, value) -> {
             value.display();
         });
+    }
+
+    public int getOffsetValue(String type){
+        // boolean
+        if (type.equals("boolean"))
+            return 1;
+
+        // integer
+        if (type.equals("int"))
+            return 4;
+        
+        // pointer
+        return 8;
+    }
+
+    // Pair to hold both offsets in one object
+    public class ClassOffsets {
+        int fieldOffset;
+        int methodOffset;
+
+        public ClassOffsets(int fieldOffset, int methodOfsset){
+            this.fieldOffset = fieldOffset;
+            this.methodOffset = methodOfsset;
+        }
+    }
+
+    // Print offsets in a formatted way
+    public void printOffsets(){
+        System.out.println("Printing offsets");
+        LinkedHashMap<String, ClassOffsets> classOffsetMap = new LinkedHashMap<>();
+
+        // For each class
+        for (Map.Entry<String, ClassSymbol> classEntry : this.classes.entrySet()){
+            // Get classname and classSybmol
+            String classname = classEntry.getKey();
+            ClassSymbol cs = classEntry.getValue();
+
+            
+            // Check for inherited fields and methods
+            int fieldOffset = cs.getParentClassSymbol() != null ? classOffsetMap.get(cs.getParentClassSymbol().getClassName()).fieldOffset : 0;
+            int methodOffset = cs.getParentClassSymbol() != null ? classOffsetMap.get(cs.getParentClassSymbol().getClassName()).methodOffset : 0;
+            
+            
+            for (Map.Entry<String, FieldSymbol> fieldEntry : cs.getFields().entrySet()){
+                String fieldIdentifier = fieldEntry.getKey();
+                FieldSymbol fs = fieldEntry.getValue();
+                
+                int offsetValue = getOffsetValue(fs.getType());
+                System.out.println(cs.getClassName() + "." + fieldIdentifier + " : " + fieldOffset);
+                fieldOffset += offsetValue;
+            }
+            
+            for (Map.Entry<String, MethodSymbol> methodEntry : cs.getMethods().entrySet()){
+                String methodIdentifier = methodEntry.getKey();
+                
+                // Skip overriden methods
+                if (cs.getInheritedMethods().containsKey(methodIdentifier))
+                    continue;
+                
+                // Skip main function
+                if (methodIdentifier == "main")
+                continue;
+                
+                int offsetValue = 8;
+                System.out.println(cs.getClassName() + "." + methodIdentifier + " : " + methodOffset);
+                methodOffset += offsetValue;
+            }
+            
+            // Create ClassOffsets entry
+            classOffsetMap.put(classname, new ClassOffsets(fieldOffset, methodOffset));
+            System.out.println();
+
+        }
     }
 }

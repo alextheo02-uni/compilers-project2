@@ -32,21 +32,15 @@ public class Main {
                 FirstPassVisitor fpv = new FirstPassVisitor(ST, context);
                 try {
                     
-                    // System.err.println("Running first visitor pass.");
                     // First visitor pass
                     root.accept(fpv, null);
                     
-                    // System.out.println("SYMBOL TABLE DISPLAY");
-                    // ST.display();
-                    
                     // After gathering all the info about classes,
                     // Parse the Symbol Table once for name checking
-                    
                     ST.declarationCheck();
                     
                     // 2nd visitor pass, type checking
                     SecondPassVisitor spv = new SecondPassVisitor(ST, context);
-                    // System.err.println("Running second visitor pass.");
                     root.accept(spv, null);
 
                 } catch(Exception ex){
@@ -54,9 +48,8 @@ public class Main {
                     continue;
                 }
 
-                
-                // MyVisitor eval = new MyVisitor();
-                // root.accept(eval, null);
+                // Semantic analysis complete, no errors, print offsets
+                ST.printOffsets();
             }
             catch(ParseException ex){
                 System.out.println(ex.getMessage());
