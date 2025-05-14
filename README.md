@@ -17,7 +17,7 @@ Compile the program:
 Execute the program for specific files:
 ```java Main [file1] [file2] [file3]```
 
-Run all three scripts
+Run all three scripts:
 ```make tests```
 
 Run individual script:
